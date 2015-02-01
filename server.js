@@ -12,7 +12,8 @@ var config = require('./config');
 /**
  * Get port from environment and store in Express.
  */
-app.set('port', config.envVariables[config.appEnv].port);
+var port = config.envVariables[config.appEnv].port;
+app.set('port', port);
 
 /**
  * Create HTTP server.

@@ -3,6 +3,7 @@
 *.log
 *.zip
 *.pem
+*.ppk
 *.txt
 
 node_modules/
