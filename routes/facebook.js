@@ -46,7 +46,7 @@ router.post('/auth', function(req, res, next) {
 
 router.use(function(req, res, next) {
   if (!req.query || !req.query.access_token)
-    return response.error({internalMessage: 'fb auth token not passed'});
+    return response.error(res, {internalMessage: 'fb auth token not passed'});
   next();
 });
 router.get('/pictures/likes', likesRequest);
