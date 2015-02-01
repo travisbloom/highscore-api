@@ -15,6 +15,10 @@ app.use(bodyParser.json());
 //app.use(cookieParser());
 
 //app.use(cors()); // enable pre-flight request for DELETE request
+//health check for elb
+app.use('/health', function(req, res){
+  res.res.send(200);
+});
 app.use('/facebook', facebook);
 
 // catch 404 and forward to error handler
