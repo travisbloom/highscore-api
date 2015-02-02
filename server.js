@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /**
  * Module dependencies.
  */
@@ -26,29 +25,9 @@ var server = http.createServer(app);
 
 server.listen(port);
 server.on('error', function(err) {
-  log.error('error booting up server', error)
+  log.error('error booting up server', err)
 });
 server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
 
 /**
  * Event listener for HTTP server "listening" event.
