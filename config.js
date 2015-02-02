@@ -1,14 +1,21 @@
 module.exports = {
   fb: {
-    clientSecret: process.env.FB_SECRET || 'CHANGEME'
+    clientSecret: process.env.HIGHSCORE_FB_SECRET || 'CHANGEME'
   },
-  appEnv: process.env.APP_ENV || 'local',
+  aws: {
+    clientKey: process.env.HIGHSCORE_AWS_CLIENT || 'CHANGEME',
+    clientSecret: process.env.HIGHSCORE_AWS_SECRET || 'CHANGEME'
+  },
+  debugMode: false,
+  appEnv: process.env.HIGHSCORE_ENV || 'local',
   envVariables: {
     local: {
-      port: 3000
+      port: 3000,
+      s3Bucket: 'highscore-data'
     },
     dev: {
-      port: 80
+      port: 80,
+      s3Bucket: 'highscore-data'
     }
   }
 };

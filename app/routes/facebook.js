@@ -2,10 +2,11 @@ var url = require('url');
 var querystring = require('querystring');
 var express = require('express');
 var request = require('request-promise');
-var config = require('../config');
+var config = require('../../config');
 var response = require('./standard-response');
 var router = express.Router();
 var fbUri = 'https://graph.facebook.com/v2.2';
+var log = require('../logger');
 
 function generateUrl(path, queryParams) {
   var newUrl =  url.parse(fbUri + path);
@@ -32,7 +33,8 @@ router.post('/auth', function(req, res, next) {
       client_secret: config.fb.clientSecret
     }
   }).then(function(returnedData) {
-      //convert returned query params to json
+    log.debug('facebook auth returned with user data');
+    //convert returned query params to json
       res.json(querystring.parse(returnedData));
     })
     .catch(function(returnedData) {
@@ -64,12 +66,18 @@ function likesRequest(req, res) {
     limit: 3000,
     fields: 'likes.limit(1).summary(true)'
   };
-  if (req.query.since) fbReq.query.since = req.query.since;
+  if (req.query.since) {
+    fbReq.query.since = req.query.since;
+  } else {
+    log.info('initial custom score request submitted for %s', req.originalUrl);
+  }
   fbReq = url.format(fbReq);
+  log.debug('facebook like request submitted');
   request(fbReq)
     //todo pipe compute to lambda
     .then(function(response) {
       var currentScore = 0, currentItemId = null;
+      log.debug('facebook like request returned');
       response = JSON.parse(response);
       //iterate over all the returned items
       response.data.forEach(function(item) {
