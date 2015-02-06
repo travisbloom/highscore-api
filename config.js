@@ -1,4 +1,5 @@
 module.exports = {
+  jwtSecret: process.env.HIGHSCORE_JWT_SECRET || 'CHANGEME',
   facebook: {
     clientSecret: process.env.HIGHSCORE_FB_SECRET || 'CHANGEME'
   },

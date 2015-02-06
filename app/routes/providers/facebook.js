@@ -35,7 +35,8 @@ router.post('/auth', function(req, res, next) {
   }).then(function(returnedData) {
     log.debug('facebook auth returned with user data');
     //convert returned query params to json
-      res.json(querystring.parse(returnedData));
+    //returns access_token and expires
+      response.returnAuthToken(res, querystring.parse(returnedData));
     })
     .catch(function(returnedData) {
       response.error(res, {
@@ -47,7 +48,7 @@ router.post('/auth', function(req, res, next) {
 });
 
 router.use(function(req, res, next) {
-  if (!req.query || !req.query.access_token)
+  if (!req.auth)
     return response.error(res, {internalMessage: 'fb auth token not passed'});
   next();
 });
@@ -62,25 +63,26 @@ function likesRequest(req, res) {
   }
   fbReq = url.parse(fbUri + fbReq);
   fbReq.query = {
-    access_token: req.query.access_token,
+    access_token: req.auth.access_token,
     limit: 3000,
     fields: 'likes.limit(1).summary(true)'
   };
+  console.log(fbReq.query)
   if (req.query.since) {
     fbReq.query.since = req.query.since;
   } else {
-    log.info('initial custom score request submitted for %s', req.originalUrl);
+    log.info('initial custom score request submitted for %s', req.path);
   }
   fbReq = url.format(fbReq);
   log.debug('facebook like request submitted');
   request(fbReq)
     //todo pipe compute to lambda
-    .then(function(response) {
+    .then(function(providerRes) {
       var currentScore = 0, currentItemId = null;
       log.debug('facebook like request returned');
-      response = JSON.parse(response);
+      providerRes = JSON.parse(providerRes);
       //iterate over all the returned items
-      response.data.forEach(function(item) {
+      providerRes.data.forEach(function(item) {
         if (!item.likes || !item.likes.summary) return;
         var likeScore = +item.likes.summary.total_count;
         //if totalLikes exceeds the previous max
@@ -94,6 +96,7 @@ function likesRequest(req, res) {
         currentScore = req.query.currentScore;
         currentItemId = req.query.currentItemId;
       }
+      log.debug('returned');
       //convert returned query params to json
       response.returnScore(res, {
         score: currentScore,
@@ -110,6 +113,7 @@ function likesRequest(req, res) {
       })
     })
     .catch(function(err) {
+      console.log(err)
       response.error(res, {
         internalMessage: 'facebook rejected request',
         details: err

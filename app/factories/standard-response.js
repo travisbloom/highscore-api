@@ -1,4 +1,6 @@
 var log = require('../logger');
+var jwt = require('jwt-simple');
+var config = require('../../config');
 
 exports.error = function(res, errObj) {
   log.warn('error sent to client', errObj);
@@ -18,10 +20,11 @@ exports.returnScore = function(res, returnedJSON) {
   })
 };
 
-exports.returnAuthToken = function(res, accessToken, accessTokenSecret) {
+exports.returnAuthToken = function(res, authObj) {
   var response = {
-    access_token: accessToken
+    access_token: authObj.access_token
   };
-  if (accessTokenSecret) response.access_token_secret = accessTokenSecret;
-  res.json(response);
+  if (authObj.access_token_secret) response.access_token_secret = authObj.access_token_secret;
+  if (authObj.expires) response.expires = authObj.expires;
+  res.json({jwt: jwt.encode(response, config.jwtSecret)});
 };

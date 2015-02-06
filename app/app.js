@@ -7,6 +7,7 @@ var cors = require('cors');
 var response = require('./factories/standard-response');
 var log = require('./logger');
 var config = require('../config');
+var jwt = require('jwt-simple');
 
 var app = express();
 
@@ -19,9 +20,15 @@ app.use(session({
   saveUninitialized: false,
   resave: false
 }));
-//app.use(bodyParser.urlencoded({ extended: false }));
-//app.use(cookieParser());
 
+/**
+ * decode JWT present in the query params
+* */
+app.use(function(req, res, next) {
+  if (req.query.jwt)
+    req.auth = jwt.decode(req.query.jwt, config.jwtSecret);
+  next();
+});
 //health check for elb
 app.use('/health', function(req, res) { res.sendStatus(200); });
 app.use('/facebook', require('./routes/providers/facebook'));
@@ -42,7 +49,6 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
   app.use(function(err, req, res, next) {
-    console.log(err)
     log.error('Server Thrown Error', {error: err});
     var error = config.appEnv === 'prod' ? null : err;
     response.error(res, {
