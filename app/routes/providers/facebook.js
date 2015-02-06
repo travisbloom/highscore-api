@@ -2,11 +2,11 @@ var url = require('url');
 var querystring = require('querystring');
 var express = require('express');
 var request = require('request-promise');
-var config = require('../../config');
-var response = require('./standard-response');
+var config = require('../../../config');
+var response = require('../../factories/standard-response');
 var router = express.Router();
 var fbUri = 'https://graph.facebook.com/v2.2';
-var log = require('../logger');
+var log = require('../../logger');
 
 function generateUrl(path, queryParams) {
   var newUrl =  url.parse(fbUri + path);
@@ -30,7 +30,7 @@ router.post('/auth', function(req, res, next) {
       client_id: req.body.clientId,
       redirect_uri: req.body.redirectUri,
       code: req.body.code,
-      client_secret: config.fb.clientSecret
+      client_secret: config.facebook.clientSecret
     }
   }).then(function(returnedData) {
     log.debug('facebook auth returned with user data');
@@ -95,11 +95,9 @@ function likesRequest(req, res) {
         currentItemId = req.query.currentItemId;
       }
       //convert returned query params to json
-      res.json({
-        test: response,
+      response.returnScore(res, {
         score: currentScore,
         metaData: {
-          reqTimestamp: new Date().toJSON(),
           queryParams: {
             //tracks the last id queried by facebook, reduces redundant query results from returning
             //e.g. prevents previously calculated photos from being queried
@@ -109,7 +107,7 @@ function likesRequest(req, res) {
             currentItemId: currentItemId
           }
         }
-      });
+      })
     })
     .catch(function(err) {
       response.error(res, {

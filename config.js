@@ -1,6 +1,10 @@
 module.exports = {
-  fb: {
+  facebook: {
     clientSecret: process.env.HIGHSCORE_FB_SECRET || 'CHANGEME'
+  },
+  twitter: {
+    consumerKey: process.env.HIGHSCORE_TWITTER_KEY || 'YQCytIZQ57o5HmlN83WVjFjHP',
+    consumerSecret: process.env.HIGHSCORE_TWITTER_SECRET || 'LbEI41uSv7TDNXRF8NiUcfH9gO6YUm3i73uBZfsumWTZvUMPUU'
   },
   aws: {
     clientKey: process.env.HIGHSCORE_AWS_CLIENT || 'CHANGEME',
@@ -11,11 +15,12 @@ module.exports = {
   envVariables: {
     local: {
       port: 3000,
-      s3Bucket: 'highscore-data'
+      applicationUri: 'http://localhost:3000'
     },
     dev: {
       port: 80,
-      s3Bucket: 'highscore-data'
+      s3Bucket: 'highscore-data',
+      applicationUri: 'dev.api.highscor.com'
     }
   }
 };

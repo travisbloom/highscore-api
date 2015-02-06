@@ -36,7 +36,7 @@ if (config.appEnv !== 'local') {
   });
   logger.add(winston.transports.File, {
     name: 's3Logs',
-    level: 'error',
+    level: 'warn',
     handleExceptions: true,
     stream: s3_stream
   });
