@@ -23,7 +23,7 @@ app.use(session({
 
 /**
  * decode JWT present in the query params
-* */
+ * */
 app.use(function(req, res, next) {
   if (req.query.jwt)
     req.auth = jwt.decode(req.query.jwt, config.jwtSecret);
@@ -48,15 +48,13 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-  app.use(function(err, req, res, next) {
-    log.error('Server Thrown Error', {error: err});
-    var error = config.appEnv === 'prod' ? null : err;
-    response.error(res, {
-      status: 500,
-      internalMessage: 'There was an error with your request, please try again later',
-      details: error
-    })
-  });
+app.use(function(err, req, res, next) {
+  log.error('Server Thrown Error:', err.message);
+  response.error(res, {
+    status: 500,
+    internalMessage: 'There was an error with your request, please try again later'
+  })
+});
 
 
 module.exports = app;
