@@ -15,41 +15,33 @@ function generateUrl(path, queryParams) {
 }
 /* GET home page. */
 router.post('/auth', function(req, res, next) {
+  var body;
   //add client secret to the request
   if (!req.body || !req.body.code || !req.body.clientId || !req.body.redirectUri)
-    return response.error(res, {
-      internalMessage: 'fb auth fields not passed',
-      data: {passedBody: req.body}
-    });
+    return response.error('fb auth fields not passed', res, 'facebook');
+  //reformat json body, add client_secret
+  body = {
+    client_id: req.body.clientId,
+    redirect_uri: req.body.redirectUri,
+    code: req.body.code,
+    client_secret: config.facebook.clientSecret
+  };
   //submit POST to facebook
-  request({
-    method: 'POST',
-    uri: fbUri + '/oauth/access_token',
-    //reformat json body, add client_secret
-    json: {
-      client_id: req.body.clientId,
-      redirect_uri: req.body.redirectUri,
-      code: req.body.code,
-      client_secret: config.facebook.clientSecret
-    }
-  }).then(function(returnedData) {
-    log.debug('facebook auth returned with user data');
-    //convert returned query params to json
-    //returns access_token and expires
+  request({ method: 'POST', uri: fbUri + '/oauth/access_token', json: body })
+    .then(function(returnedData) {
+      log.debug('facebook auth returned with user data');
+      //convert returned query params to json
+      //returns access_token and expires
       response.returnAuthToken(res, querystring.parse(returnedData));
     })
-    .catch(function(returnedData) {
-      response.error(res, {
-        status: 400,
-        internalMessage: 'facebook rejected request',
-        details: returnedData.error
-      });
+    .catch(function(err) {
+      response.error(err, res, 'facebook');
     });
 });
 
 router.use(function(req, res, next) {
   if (!req.auth)
-    return response.error(res, {internalMessage: 'fb auth token not passed'});
+    return response.error('fb auth tokens not passed to request', res);
   next();
 });
 router.get('/pictures/likes', likesRequest);
@@ -75,14 +67,14 @@ function likesRequest(req, res) {
   }
   fbReq = url.format(fbReq);
   log.debug('facebook like request submitted');
-  request(fbReq)
+  return request(fbReq)
     //todo pipe compute to lambda
     .then(function(providerRes) {
       var currentScore = 0, currentItemId = null;
       log.debug('facebook like request returned');
       providerRes = JSON.parse(providerRes);
       //iterate over all the returned items
-      providerRes.data.forEach(function(item) {
+      providerRes.data.forEach(function (item) {
         if (!item.likes || !item.likes.summary) return;
         var likeScore = +item.likes.summary.total_count;
         //if totalLikes exceeds the previous max
@@ -104,7 +96,7 @@ function likesRequest(req, res) {
           queryParams: {
             //tracks the last id queried by facebook, reduces redundant query results from returning
             //e.g. prevents previously calculated photos from being queried
-            since: Math.round(+new Date()/1000),
+            since: Math.round(+new Date() / 1000),
             //tracks the current max, will override returned max if since is present
             currentScore: currentScore,
             currentItemId: currentItemId
@@ -113,11 +105,8 @@ function likesRequest(req, res) {
       })
     })
     .catch(function(err) {
-      console.log(err)
-      response.error(res, {
-        internalMessage: 'facebook rejected request',
-        details: err
-      });
+      response.error(err, res, 'facebook');
     });
+  ;
 }
 module.exports = router;

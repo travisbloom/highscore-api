@@ -2,13 +2,22 @@ var log = require('../logger');
 var jwt = require('jwt-simple');
 var config = require('../../config');
 
-exports.error = function(res, errObj) {
-  log.warn('error sent to client', errObj);
-  res.status(errObj.status || 500).json({
-    userMessage: errObj.userMessage || 'There was an error with your request, please try again later',
-    internalMessage: errObj.internalMessage || this.userMessage,
-    details: errObj.details || null
-})
+
+function logError(err) {
+  if (typeof err === 'string') return log.warn(err);
+  if (err.message) return log.warn(err.message, err);
+  else log.error('uncaught error passed to error responder', err);
+}
+
+exports.error = function(serverErr, res, returnedErr) {
+  logError(serverErr);
+  returnedErr = returnedErr || {};
+  //if a provider is passed as the returned error
+  if (typeof returnedErr === 'string') {
+    returnedErr = {userMessage: 'There was an error communicating with ' + returnedErr + '. Please try again later'};
+  }
+  returnedErr.userMessage = returnedErr.userMessage || 'There was an error with your request, please try again later';
+  res.status(returnedErr.status || 500).json(returnedErr);
 };
 
 exports.returnScore = function(res, returnedJSON) {

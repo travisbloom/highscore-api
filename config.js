@@ -16,12 +16,14 @@ module.exports = {
   envVariables: {
     local: {
       port: 3000,
-      applicationUri: 'http://localhost:3000'
+      applicationUri: 'http://localhost:3000',
+      clientUri: 'http://localhost:8100'
     },
     dev: {
       port: 80,
       s3Bucket: 'highscore-data',
-      applicationUri: 'dev.api.highscor.com'
+      applicationUri: 'dev.api.highscor.com',
+      clientUri: 'http://localhost'
     }
   }
 };

@@ -8,12 +8,7 @@ var q = require('q');
 
 module.exports.buildOAuth = function(auth, provider) {
   if (!auth.access_token || !auth.access_token_secret)
-    return {
-      error: 400,
-      internalMessage: 'oAuth1 tokens missing from params',
-      userMessage: 'There was an error submitting your request, please try again later',
-      data: {passedAuth: auth}
-    };
+    throw 'tokens not present for oAuth1 request';
   return {
     consumer_key: config[provider].consumerKey,
     consumer_secret: config[provider].consumerSecret,
@@ -24,7 +19,7 @@ module.exports.buildOAuth = function(auth, provider) {
 
 /**
  * OAuth Client info
-* */
+ * */
 var oAuthClients = {
   twitter: {
     requestTokenUrl: 'https://api.twitter.com/oauth/request_token',
@@ -37,18 +32,25 @@ function requestToken(res, provider) {
   var requestTokenOauth = {
     consumer_key: config[provider].consumerKey,
     consumer_secret: config[provider].consumerSecret,
-    callback: 'http://localhost:8100'
+    callback: config.envVariables[config.appEnv].clientUri
   };
   //Obtain request token for the authorization popup.
-  request.post({ url: oAuthClients[provider].requestTokenUrl, oauth: requestTokenOauth}).then(function(reqTokenRes) {
-    reqTokenRes = querystring.parse(reqTokenRes);
-    var params = querystring.stringify({ oauth_token: reqTokenRes.oauth_token });
-    //Redirect to the authorization screen.
-    res.redirect(oAuthClients[provider].authenticateUrl + '?' + params);
-  }).catch(function(errRes) {
-    console.log(errRes.error);
-  });
+  request
+    .post({ url: oAuthClients[provider].requestTokenUrl, oauth: requestTokenOauth})
+    .then(function(reqTokenRes) {
+      reqTokenRes = querystring.parse(reqTokenRes);
+      var params = querystring.stringify({ oauth_token: reqTokenRes.oauth_token });
+      //Redirect to the authorization screen.
+      res.redirect(oAuthClients[provider].authenticateUrl + '?' + params);
+    })
+    .catch(function(err) {
+      response.error(err, res, provider)
+    });
 }
+
+/**
+ * determine what provider the oAuth request is for
+ * */
 router.param('provider', function (req, res, next, provider) {
   req.provider = provider;
   next();
@@ -68,12 +70,13 @@ router.get('/:provider', function (req, res) {
     token: req.query.oauth_token,
     verifier: req.query.oauth_verifier
   };
-  request.post({ url: oAuthClients[req.provider].accessTokenUrl, oauth: accessTokenOauth }).then(function (accessTokenRes) {
-    //return the access token to the user
-    response.returnAuthToken(res, querystring.parse(accessTokenRes));
-  }).catch(function(errRes) {
-
-  });
+  request
+    .post({ url: oAuthClients[req.provider].accessTokenUrl, oauth: accessTokenOauth })
+    .then(function (accessTokenRes) {
+      //return the access token to the user
+      response.returnAuthToken(res, querystring.parse(accessTokenRes));
+    })
+    .catch(function(err){ response.error(err, res, req.provider) });
 });
 
 module.exports.router = router;
