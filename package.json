@@ -2,7 +2,7 @@
   "name": "highscor",
   "version": "0.0.0",
   "description": "Tracking your personal bests",
-  "main": "app.js",
+  "main": "server.js",
   "author": "Travis Bloom <travisbloom@gmail.com>",
   "scripts": {
     "start": "node server.js"

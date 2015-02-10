@@ -1,7 +1,11 @@
-var winston = require('winston');
-var config = require('../config');
+//node modules
 var path = require('path');
+//3rd party modules
 var S3StreamLogger = require('s3-streamlogger').S3StreamLogger;
+var winston = require('winston');
+//app modules
+var config = require('../config');
+
 var logDir = path.join(process.cwd(), 'log');
 
 var logger = new (winston.Logger)({
