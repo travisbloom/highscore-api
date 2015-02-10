@@ -1,39 +1,36 @@
-var express = require('express');
-var session = require('express-session')
+//3rd party modules
+var app = require('express')();
+var request = require('request-promise');
+var session = require('express-session');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
-var response = require('./factories/standard-response');
+var jwt = require('jwt-simple');
+//app modules
 var log = require('./logger');
 var config = require('../config');
-var jwt = require('jwt-simple');
-
-var app = express();
+var response = require('./factories/standard-response');
 
 app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
-//todo add redis so session storage is not just server side
-app.use(session({
-  secret: 'keyboard cat',
-  saveUninitialized: false,
-  resave: false
-}));
 
+//health check for elb
+app.use('/health', function(req, res) { res.sendStatus(200); });
+app.use('/oauth1', require('./routes/oauth1').router);
+app.use('/oauth2', require('./routes/oauth2'));
 /**
  * decode JWT present in the query params
  * */
 app.use(function(req, res, next) {
-  if (req.query.jwt)
-    req.auth = jwt.decode(req.query.jwt, config.jwtSecret);
+  if (!req.query.jwt)
+    return response.error('auth tokens not passed to request', res);
+  req.auth = jwt.decode(req.query.jwt, config.jwtSecret);
   next();
 });
-//health check for elb
-app.use('/health', function(req, res) { res.sendStatus(200); });
 app.use('/facebook', require('./routes/providers/facebook'));
 app.use('/twitter', require('./routes/providers/twitter'));
-app.use('/oauth1', require('./routes/oauth1').router);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,10 +1,12 @@
-var express = require('express');
+//node modules
 var querystring = require('querystring');
-var router = express.Router();
+//3rd party modules
+var router = require('express').Router();
 var request = require('request-promise');
+//app modules
+var log = require('../logger');
 var config = require('../../config');
 var response = require('../factories/standard-response');
-var q = require('q');
 
 module.exports.buildOAuth = function(auth, provider) {
   if (!auth.access_token || !auth.access_token_secret)
@@ -34,9 +36,9 @@ function requestToken(res, provider) {
     consumer_secret: config[provider].consumerSecret,
     callback: config.envVariables[config.appEnv].clientUri
   };
+  log.debug(provider + ' Oauth1 request token requested');
   //Obtain request token for the authorization popup.
-  request
-    .post({ url: oAuthClients[provider].requestTokenUrl, oauth: requestTokenOauth})
+  request({  method: 'POST', url: oAuthClients[provider].requestTokenUrl, oauth: requestTokenOauth})
     .then(function(reqTokenRes) {
       reqTokenRes = querystring.parse(reqTokenRes);
       var params = querystring.stringify({ oauth_token: reqTokenRes.oauth_token });
@@ -70,13 +72,15 @@ router.get('/:provider', function (req, res) {
     token: req.query.oauth_token,
     verifier: req.query.oauth_verifier
   };
-  request
-    .post({ url: oAuthClients[req.provider].accessTokenUrl, oauth: accessTokenOauth })
+  log.debug(req.provider + ' Oauth1 access token requested');
+  request({ method: 'POST', url: oAuthClients[req.provider].accessTokenUrl, oauth: accessTokenOauth })
     .then(function (accessTokenRes) {
       //return the access token to the user
       response.returnAuthToken(res, querystring.parse(accessTokenRes));
     })
-    .catch(function(err){ response.error(err, res, req.provider) });
+    .catch(function(err){
+      response.error(err, res, req.provider)
+    });
 });
 
 module.exports.router = router;

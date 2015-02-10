@@ -20,11 +20,11 @@ exports.error = function(serverErr, res, returnedErr) {
   res.status(returnedErr.status || 500).json(returnedErr);
 };
 
-exports.returnScore = function(res, returnedJSON) {
-  var metaData = returnedJSON.metaData || {};
+exports.returnScore = function(res, score, metaData) {
+  metaData = metaData || {};
   metaData.reqTimestamp = new Date().toJSON();
     res.json({
-    score: returnedJSON.score,
+    score: score,
     metaData: metaData
   })
 };

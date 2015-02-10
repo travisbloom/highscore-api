@@ -1,12 +1,14 @@
-var express = require('express');
+//node modules
+//3rd party modules
+var router = require('express').Router();
 var request = require('request-promise');
+//app modules
+var log = require('../../logger');
 var config = require('../../../config');
 var response = require('../../factories/standard-response');
-var router = express.Router();
 var buildOAuth =  require('./../oauth1').buildOAuth;
-var providerUri = 'https://api.twitter.com/1.1';
-var log = require('../../logger');
 
+var providerUri = 'https://api.twitter.com/1.1';
 
 /**
  * get twitter followers
