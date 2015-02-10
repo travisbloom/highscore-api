@@ -16,13 +16,12 @@ var providerUri = 'https://api.twitter.com/1.1';
 router.get('/followers/count', function(req, res) {
   try {
     var oauth = buildOAuth(req.auth, 'twitter');
-    //if auth credentials are missing from the request
   } catch(err) {
-   return response.error(err, res)
+    //if auth credentials are missing from the request
+    return response.error(err, res)
   }
-  console.log(oauth)
-  request({uri: providerUri + '/statuses/user_timeline', oauth: oauth, json:true}).then(function(reqRes) {
-    console.log('success', reqRes);
+  request({uri: providerUri + '/account/verify_credentials.json', oauth: oauth, json:true}).then(function(providerRes) {
+    response.returnScore(res, providerRes.followers_count);
   }).catch(function(err){
     response.error(err, res, 'twitter')
   });
