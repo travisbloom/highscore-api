@@ -20,9 +20,10 @@ router.get('/followers/count', function(req, res) {
   } catch(err) {
    return response.error(err, res)
   }
-  request({uri: providerUri + '/statuses/user_timeline', oauth: oauth}).then(function(reqRes) {
+  console.log(oauth)
+  request({uri: providerUri + '/statuses/user_timeline', oauth: oauth, json:true}).then(function(reqRes) {
     console.log('success', reqRes);
-  }).catch(function(reqRes){
+  }).catch(function(err){
     response.error(err, res, 'twitter')
   });
 });

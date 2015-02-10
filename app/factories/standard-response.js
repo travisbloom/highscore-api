@@ -3,14 +3,16 @@ var jwt = require('jwt-simple');
 var config = require('../../config');
 
 
-function logError(err) {
+function logError(err, provider) {
   if (typeof err === 'string') return log.warn(err);
-  if (err.message) return log.warn(err.message, err);
+  //provider returned errors
+  if (err.message && typeof provider === 'string')
+    return log.warn('Error returned by ' + provider + ': ', err.message, err.error, 'Status Code: ' + err.statusCode);
   else log.error('uncaught error passed to error responder', err);
 }
 
 exports.error = function(serverErr, res, returnedErr) {
-  logError(serverErr);
+  logError(serverErr, returnedErr);
   returnedErr = returnedErr || {};
   //if a provider is passed as the returned error
   if (typeof returnedErr === 'string') {
