@@ -4,8 +4,8 @@ module.exports = {
     clientSecret: process.env.HIGHSCORE_FB_SECRET || 'CHANGEME'
   },
   twitter: {
-    consumerKey: process.env.HIGHSCORE_TWITTER_KEY || 'YQCytIZQ57o5HmlN83WVjFjHP',
-    consumerSecret: process.env.HIGHSCORE_TWITTER_SECRET || 'LbEI41uSv7TDNXRF8NiUcfH9gO6YUm3i73uBZfsumWTZvUMPUU'
+    consumerKey: process.env.HIGHSCORE_TWITTER_KEY || 'CHANGEME',
+    consumerSecret: process.env.HIGHSCORE_TWITTER_SECRET || 'CHANGEME'
   },
   aws: {
     clientKey: process.env.HIGHSCORE_AWS_CLIENT || 'CHANGEME',
