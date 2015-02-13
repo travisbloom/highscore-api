@@ -8,17 +8,18 @@ function logError(err, provider) {
   //provider returned errors
   if (err.message && typeof provider === 'string')
     return log.warn('Error returned by ' + provider + ': ', err.message, err.error, 'Status Code: ' + err.statusCode);
-  else log.error('uncaught error passed to error responder', err);
+  log.error('uncaught error passed to error responder', err);
 }
 
-exports.error = function(serverErr, res, returnedErr) {
+exports.error = function(serverErr, res, returnedErr, expiredToken) {
   logError(serverErr, returnedErr);
   returnedErr = returnedErr || {};
   //if a provider is passed as the returned error
-  if (typeof returnedErr === 'string') {
-    returnedErr = {userMessage: 'There was an error communicating with ' + returnedErr + '. Please try again later'};
-  }
+  if (typeof returnedErr === 'string')
+    returnedErr = { userMessage: 'There was an error communicating with ' + returnedErr + '. Please try again later' };
   returnedErr.userMessage = returnedErr.userMessage || 'There was an error with your request, please try again later';
+  if (expiredToken)
+    returnedErr.expiredToken = true;
   res.status(returnedErr.status || 500).json(returnedErr);
 };
 

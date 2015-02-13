@@ -66,7 +66,7 @@ function likesRequest(req, res) {
       });
     })
     .catch(function(err) {
-      response.error(err, res, 'facebook');
+      response.error(err, res, 'facebook', err.error && err.error.code === '190');
     });
 }
 module.exports = router;
