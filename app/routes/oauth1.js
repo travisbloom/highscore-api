@@ -14,8 +14,8 @@ module.exports.buildOAuth = function(access_token, access_token_secret, provider
   return {
     consumer_key: config[provider].consumerKey,
     consumer_secret: config[provider].consumerSecret,
-    access_token: access_token,
-    access_token_secret: access_token_secret
+    token: access_token,
+    token_secret: access_token_secret
   };
 };
 
