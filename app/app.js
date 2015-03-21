@@ -23,7 +23,7 @@ app.use('/oauth2', require('./routes/oauth2'));
  * decode JWT present in the query params
  * */
 app.use(function(req, res, next) {
-  if (!req.body || ! req.body.auth || !req.body.jwt)
+  if (!req.body || (!req.body.auth && !req.body.jwt))
     return response.error('auth tokens not passed to request', res);
   req.auth = req.body.auth || jwt.decode(req.body.jwt, config.jwtSecret);
   next();
