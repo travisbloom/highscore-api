@@ -23,13 +23,9 @@ app.use('/oauth2', require('./routes/oauth2'));
  * decode JWT present in the query params
  * */
 app.use(function(req, res, next) {
-  if (req.query.jwt) {
-    req.auth = jwt.decode(req.query.jwt, config.jwtSecret);
-  } else if (req.query.access_token) {
-    req.auth = {access_token: req.query.access_token};
-  } else {
+  if (!req.body || ! req.body.auth || !req.body.jwt)
     return response.error('auth tokens not passed to request', res);
-  }
+  req.auth = req.body.auth || jwt.decode(req.body.jwt, config.jwtSecret);
   next();
 });
 app.use('/facebook', require('./routes/providers/facebook'));

@@ -36,7 +36,7 @@ if (config.appEnv !== 'local') {
     access_key_id: config.aws.clientKey,
     secret_access_key: config.aws.clientSecret,
     upload_every: 100,
-      name_format: '%Y-%m-%d-%H-%M-' + config.appEnv + '-' + process.env.HOSTNAME + '.log'
+    name_format: '%Y-%m-%d-%H-%M-' + config.appEnv + '-' + process.env.HOSTNAME + '.log'
   });
   logger.add(winston.transports.File, {
     name: 's3Logs',

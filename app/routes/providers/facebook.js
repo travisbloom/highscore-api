@@ -11,8 +11,8 @@ var response = require('../../factories/standard-response');
 
 var fbUri = 'https://graph.facebook.com/v2.2';
 
-router.get('/pictures/likes', likesRequest);
-router.get('/status/likes', likesRequest);
+router.post('/pictures/likes', likesRequest);
+router.post('/status/likes', likesRequest);
 function likesRequest(req, res) {
   var fbReq;
   //build URL for request

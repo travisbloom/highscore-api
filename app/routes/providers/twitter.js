@@ -9,13 +9,12 @@ var response = require('../../factories/standard-response');
 var buildOAuth =  require('./../oauth1').buildOAuth;
 
 var providerUri = 'https://api.twitter.com/1.1';
-
 /**
  * get twitter followers
 */
-router.get('/followers/count', function(req, res) {
+router.post('/followers/count', function(req, res) {
   try {
-    var oauth = buildOAuth(req.auth, 'twitter');
+    var oauth = buildOAuth(req.auth.oauth_token, req.auth.oauth_token_secret, 'twitter');
   } catch(err) {
     //if auth credentials are missing from the request
     return response.error(err, res)

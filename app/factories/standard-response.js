@@ -16,10 +16,12 @@ exports.error = function(serverErr, res, returnedErr, expiredToken) {
   returnedErr = returnedErr || {};
   //if a provider is passed as the returned error
   if (typeof returnedErr === 'string')
-    returnedErr = { userMessage: 'There was an error communicating with ' + returnedErr + '. Please try again later' };
-  returnedErr.userMessage = returnedErr.userMessage || 'There was an error with your request, please try again later';
+    returnedErr.userMessage = 'There was an error communicating with ' + returnedErr + '. Please try again later';
   if (expiredToken)
     returnedErr.expiredToken = true;
+  if (config.appEnv !== 'prod')
+    returnedErr.serverErr =  serverErr;
+  returnedErr.userMessage = returnedErr.userMessage || 'There was an error with your request, please try again later';
   res.status(returnedErr.status || 500).json(returnedErr);
 };
 

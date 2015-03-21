@@ -8,14 +8,14 @@ var log = require('../logger');
 var config = require('../../config');
 var response = require('../factories/standard-response');
 
-module.exports.buildOAuth = function(auth, provider) {
-  if (!auth.access_token || !auth.access_token_secret)
+module.exports.buildOAuth = function(access_token, access_token_secret, provider) {
+  if (!access_token_secret || !access_token)
     throw 'tokens not present for oAuth1 request';
   return {
     consumer_key: config[provider].consumerKey,
     consumer_secret: config[provider].consumerSecret,
-    token: auth.access_token,
-    token_secret: auth.access_token_secret
+    access_token: access_token,
+    access_token_secret: access_token_secret
   };
 };
 
